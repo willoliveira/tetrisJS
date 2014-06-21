@@ -1,0 +1,25 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+#areaJogo{
+    background-color: black;
+    border: solid 1px red;
+    position: relative;
+}
+
+#col div{
+    float: left;
+}
+#row, #col, #pecas, #pecas img{
+    position: absolute;
+}
+
+.grid-col{
+    border-left: solid 1px gray;
+}
+
+.grid-row{
+    border-top: solid 1px gray;
+}

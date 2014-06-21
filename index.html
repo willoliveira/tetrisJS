@@ -1,11 +1,59 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Tetris</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="js/tetrisJS.js"></script>
+        <link href="css/style.css" rel="stylesheet" type="text/css"/>
     </head>
     <body>
-        <div>TODO write content</div>
+        <div id="geral">
+            <div id="areaJogo" style="width: 250px; height: 500px">
+                <div id="pecas" style="z-index: 1">
+                    <img src="img/cobrinha.png" style="left:75px; top: 125px"/>
+                </div>
+                <div id="grid">
+                    <div id="col">
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+                        <div class="grid-col" style="width: 24px; height: 500px"></div>
+                        <div class="grid-col" style="width: 23px; height: 500px; border-right: solid 1px gray;"></div>
+                    </div>                
+                    <div id="row">
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 24px"></div>
+                        <div class="grid-row" style="width: 249px; height: 23px; border-bottom: solid 1px gray;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
