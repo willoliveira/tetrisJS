@@ -81,7 +81,7 @@
             //
             idInterval = setInterval(function(){ 
                 move(0, 1); 
-            }, 50);
+            }, 500);
         };
     }
     
@@ -99,7 +99,7 @@
         //Limpa o setInverval
         clearInterval(idInterval);
         //Adiciona uma peca
-        //addPeca();
+        addPeca();
     }
     
     /*
