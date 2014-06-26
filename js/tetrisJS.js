@@ -1,5 +1,8 @@
 (function(){
-
+    
+    /**
+     * TODO: Fazer randomizar as cores e nao trazer a peça duas vezes seguidas
+     */
     var tetrisJS = { }, 
         matriz = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -28,36 +31,50 @@
         ],
         pecas = [
         {
-            img:"img/cobrinha.png",
             matriz:[
                 [0, 1, 1],
                 [1, 1, 0]
             ]
         },
         {
-            img:"img/nave.png",
+            matriz:[
+                [1, 1, 0],
+                [0, 1, 1]
+            ]
+        },
+        {
             matriz:[
                 [0, 1, 0],
                 [1, 1, 1]
             ]
         },
         {
-            img:"img/quadrado.png",
             matriz:[
                 [1, 1],
                 [1, 1]
             ]
         },
         {
-            img:"img/retangulo.png",
             matriz:[
                 [1, 0, 0],
                 [1, 1, 1]
             ]
+        },
+        {
+            matriz:[
+                [0, 0, 1],
+                [1, 1, 1]
+            ]
+        },
+        {
+            matriz:[
+                [1, 1, 1, 1]
+            ]
         }],
+        cores = ['red', 'green', 'blue', 'yellow', 'orange', 'gray', 'white', 'pink', 'purple'],
         keys = { }, 
         //Peça atual
-        currentPeca,
+        currentPeca = { elem:"", matriz:"" },
         indicePeca,
         
         idInterval;
@@ -76,49 +93,6 @@
         //montarGrid();
         addPeca();       
     };
-    
-    function addPeca() {
-        //Randomiza a peça que vai entrar
-        indicePeca = Math.floor(Math.random() * 4);        
-        //Pega a peça atual
-        currentPeca = new Image();
-        currentPeca.src = pecas[indicePeca].img;
-        //Onload da imagem
-        currentPeca.onload = function(){
-            //Adiciona no stage
-            document.getElementById('pecas').appendChild(currentPeca);
-            //Eventos
-            window.addEventListener("keydown", onKeyDown);
-            window.addEventListener("keyup", onKeyUp);
-            //Onde ele vai iniciar
-            currentPeca.style.top = "0px";
-            currentPeca.style.left = "75px";
-            //Não sei se vou deixar
-            pecas[indicePeca].elem = currentPeca;
-            //Enter frame
-            //idInterval = setInterval(function(){ 
-            //    move(0, 1); 
-            //}, 150);
-        };
-    }
-    
-    function removePeca () {
-        //Pega a posicao atual do role
-        var X = parseInt(currentPeca.style.left)/25,
-            Y = parseInt(currentPeca.style.top)/25,
-            peca = pecas[indicePeca].matriz;
-        //Altera a matriz, com os espaços ocupados pela ultima peça
-        for(var row = Y, lenRow = Y + peca.length; row < lenRow; row++)
-            for(var col = X, lenCol = X + peca[0].length; col < lenCol; col++)
-                if(peca[row - Y][col - X] == 1) matriz[row][col] = 1;
-        //Eventos
-        window.removeEventListener("keydown", onKeyDown);
-        window.removeEventListener("keyup", onKeyUp);
-        //Limpa o setInverval
-        clearInterval(idInterval);
-        //Adiciona uma peca
-        addPeca();
-    }
     
     /*
      * KeyDown
@@ -158,44 +132,129 @@
         delete keys[e.keyCode];
     }
     
-    
-    function montarPeca() {
-        
+    /*
+     * Monta uma peça
+     * @param {type} matrizPeca
+     * @returns {Element}
+     */
+    function montarPeca(matrizPeca) {        
+        //Container
+        var container = document.createElement('div'),
+        //Sorteia uma cor | Ta na gambs ainda
+            cor = cores[parseInt((cores.length - 1) * Math.random())];;
+        container.style.width  = (matrizPeca[0].length * 25) + "px";
+        container.style.height = (matrizPeca.length * 25) + "px";
+        container.style.position = 'absolute';
+        //Varre a matriz da peca
+        for(var row = 0, lenRow = matrizPeca.length; row < lenRow; row++) {
+            for(var col = 0, lenCol = matrizPeca[0].length; col < lenCol; col++) {
+                //
+                if(matrizPeca[row][col] == 1) {
+                    //Quadrado
+                    var quadrado = document.createElement("div");
+                    container.appendChild(quadrado);
+                    //
+                    quadrado.className = "square " + row + "_" + col;
+                    quadrado.style.backgroundColor = cor;
+                    //
+                    quadrado.style.top  = (row * 25) + "px";
+                    quadrado.style.left = (col * 25) + "px";
+                }
+            }
+        }
+        //Retorna a peça
+        return container;
     }
+    
+    /**
+     * Gira uma peça
+     */
     function girarPeca() {
-        //var angulo = Math.floor(Math.random() * 3);
-        //$(currentPeca).css("WebkitTransform", 'rotate(' + (angulo * 90) + 'deg)');
-        var m0 = [
-            [1, 0, 0],
-            [1, 1, 1]
-        ],
-        m1 = [            
-            [1, 1],
-            [1, 0],
-            [1, 0]
-        ],
-        m2 = [            
-            [1, 1, 1],
-            [0, 0, 1]
-        ],
-        m3 = [            
-            [1, 0],
-            [1, 0],
-            [1, 1]
-        ];
-        
+        //Coordenada em que a peça esta
+        var X = parseInt(currentPeca.elem.style.left)/25,
+            Y = parseInt(currentPeca.elem.style.top)/25;
         //A matriz que vou usar pra inverter
         var m = [];
        //Transformo a linha
-        for(var r = 0; r < m0[0].length; r++ ) {
+        for(var r = 0; r < currentPeca.matriz[0].length; r++ ) {
             //Adiciona uma linha
             m[r] = [];
-            for(var c = m0.length-1, cont = 0; c > -1; cont++, c--) {                
-                m[r][cont] = m0[c][r];
+            for(var c = currentPeca.matriz.length-1, cont = 0; c > -1; cont++, c--) {
+                //Se houver um square nessa posição
+                if(currentPeca.matriz[c][r] == 1) {
+                    //Pega o elemento pelo class, que é a sua coordenada dentro do container
+                    var elem = $("." + c + "_" + r);
+                    //Seta a posição dele dentro do container
+                    elem.css({top: (r * 25) + "px", left: (cont * 25) + "px"});
+                    //Remove a class da posição, pois ela mudou
+                    elem.removeClass(c + "_" + r);                   
+                }
+                m[r][cont] = currentPeca.matriz[c][r];
             }
         }
-        
-        console.log(m);
+        //Coloca a matriz alterada no objeto da peça atual
+        currentPeca.matriz = m;
+        //Reajusta o tamanho do container
+        currentPeca.elem.style.width  = (currentPeca.matriz[0].length * 25) + "px";
+        currentPeca.elem.style.height = (currentPeca.matriz.length * 25) + "px";        
+        //Setar os class nos quadrados de novo
+        for(var cont = 0; cont < $(currentPeca.elem).children().length; cont++ ) {
+            //Varre os filhos do container, e seta o class novo, pega a coordenada pela posição de cada quadrado
+            var elem = $(currentPeca.elem).children()[cont], 
+                X = parseInt(elem.style.left)/25,
+                Y = parseInt(elem.style.top)/25;
+            $(elem).addClass(Y + "_" + X);
+        }
+    }
+    
+    /*
+     * 
+     * Adiciona uma peça na tela
+     */
+    function addPeca() {
+        //Randomiza a peça que vai entrar
+        indicePeca = Math.floor(Math.random() * pecas.length);        
+        //Pega a peça atual
+        currentPeca.elem = montarPeca(pecas[indicePeca].matriz);
+        currentPeca.matriz = pecas[indicePeca].matriz;
+        //Adiciona no stage
+        document.getElementById('pecas').appendChild(currentPeca.elem);
+        //Eventos
+        window.addEventListener("keydown", onKeyDown);
+        window.addEventListener("keyup", onKeyUp);
+        //Onde ele vai iniciar
+        currentPeca.elem.style.top = "0px";
+        currentPeca.elem.style.left = "75px";
+        //Não sei se vou deixar
+        pecas[indicePeca].elem = currentPeca;
+        //Enter frame
+        //idInterval = setInterval(function(){ 
+        //    move(0, 1); 
+        //}, 150);
+    }
+    
+    function removePeca () {
+        //Pega a posicao atual do role
+        var X = parseInt(currentPeca.elem.style.left)/25,
+            Y = parseInt(currentPeca.elem.style.top)/25,
+            peca = currentPeca.matriz;
+        //Altera a matriz, com os espaços ocupados pela ultima peça
+        for(var row = Y, lenRow = Y + peca.length; row < lenRow; row++) {
+            for(var col = X, lenCol = X + peca[0].length; col < lenCol; col++) {
+                if(peca[row - Y][col - X] == 1) {
+                    matriz[row][col] = 1;
+                    var elem = $("." + (row - Y) + "_" + (col - X));
+                    elem.removeClass((row - Y) + "_" + (col - X)).addClass(row + "_" + col);
+                }
+            }
+        }
+        //Eventos
+        window.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("keyup", onKeyUp);
+        //Limpa o setInverval
+        clearInterval(idInterval);
+        //Adiciona uma peca
+        addPeca();
     }
     
     /*
@@ -205,14 +264,14 @@
      */
     function move(x, y) {
         //Pega a posicao atual do role
-        var left = parseInt(currentPeca.style.left),
-            top = parseInt(currentPeca.style.top),
+        var left = parseInt(currentPeca.elem.style.left),
+            top = parseInt(currentPeca.elem.style.top),
             destX = (left/25) + x,
             destY = (top/25) + y;        
         if(checkCollision(destX, destY, [x, y]) ) {
             //Move a peça para a região desejada
-            currentPeca.style.left = left + (x * 25) + "px";
-            currentPeca.style.top = top + (y * 25) + "px";
+            currentPeca.elem.style.left = left + (x * 25) + "px";
+            currentPeca.elem.style.top = top + (y * 25) + "px";
         }
     }
     
@@ -226,7 +285,7 @@
         var col = 0, 
             row = 0,
             len, 
-            peca = pecas[indicePeca].matriz;
+            peca = currentPeca.matriz;
         //Teste para não deixar ele sair das paredas do tetris
         if((x + peca[0].length > matriz[0].length) || x < 0 || y + peca.length > matriz.length || y < 0){
             //Se encostou no fundo, adiciona outra peça
