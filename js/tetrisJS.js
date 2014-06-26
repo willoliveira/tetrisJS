@@ -78,7 +78,7 @@
         indicePeca,
         
         idInterval;
-    
+        
     /*
      * Controi o grid do Tetris
      * TODO: Fazer a função que constroi todo o grid do jogo
@@ -301,17 +301,49 @@
         else { // col++
             row = dir[1] === -1 ? 0 : peca.length - 1;
             len = peca[0].length;
-        }
+        }       
         //Varro a coluna ou a linha da direção que vou morrer a peça, comparando com a matriz de colisão
-        for(var cont = 0; cont < len; cont++, dir[0] === 0 ? col++ : row++){            
+        // dir[0] => Movimentação em X
+        // dir[1] => Movimentação em Y
+        for(var cont = 0; cont < len; cont++, dir[0] === 0 ? col++ : row++) {            
             //Se for 0, verifico diferente a colisa, vejo no proximo ponto se existe colisao
             if(peca[row][col] === 0) {
+                
+                //:::WARNING::: 
+                //TODO:DEIXAR ESSE CODIGO MAIS BONITO!!!
+                //Varrendo aqui o role ...Nem sei como vou explicar isso aqui...
+                if(dir[1] === 0) {
+                    var colTop;
+                    //pega por qual coluna vou começar
+                    colTop = dir[0] == -1 ? 0 : peca[0].length - 1;
+                    for(var i = 0, lenTop = peca[0].length; i < lenTop;i++, dir[0] == -1 ? colTop++ : colTop--) {
+                        //compara pra ver ser vai colidir
+                        if(matriz[row + y][colTop + x] === 1 && peca[row][colTop] === 1)
+                            return false;
+                    }
+                    continue;
+                } else if(dir[0] === 0) {
+                    var rowTop;
+                    //pega por qual coluna vou começar
+                    rowTop = dir[0] == -1 ? 0 : peca.length - 1;
+                    for(var i = 0, lenTop = peca.length; i < lenTop;i++, dir[0] == -1 ? rowTop++ : rowTop--) {
+                        //compara pra ver ser vai colidir
+                        if(matriz[rowTop + y][col + x] === 1 && peca[rowTop][col] === 1) {
+                            removePeca();
+                            return false;
+                        }
+                    }
+                    continue;
+                } 
+                //:::WARNING:::
+                
+                
                 //Verifico se no lugar onde existe um espaço vazio na matriz da peça, possui uma peça com colisão
-                if(matriz[row + y + (dir[1]*-1)][col + x + (dir[0]*-1)] !== 1) continue;
-                else { 
-                    if(dir[1] === 1) removePeca();
-                    return false;
-                }
+//                if(matriz[row + y + (dir[1]*-1)][col + x + (dir[0]*-1)] !== 1) continue;
+//                else { 
+//                    if(dir[1] === 1) removePeca();
+//                    return false;
+//                }
             }
             //Verifica se é possivel andar, na posição que desejo ir
             if(matriz[row + y][col + x] === 1) {
