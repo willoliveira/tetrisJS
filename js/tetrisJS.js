@@ -209,12 +209,12 @@
         window.addEventListener("keydown", onKeyDown);
         window.addEventListener("keyup", onKeyUp);
         //Onde ele vai iniciar
-        currentPeca.elem.style.top = "0px";
+        currentPeca.elem.style.top = "-25px";
         currentPeca.elem.style.left = "75px";
         //Enter frame
-        //idInterval = setInterval(function(){ 
-        //    move(0, 1); 
-        //}, 150);
+        idInterval = setInterval(function(){ 
+            move(0, 1); 
+        }, 450);
     }
     
     function removePeca () {
