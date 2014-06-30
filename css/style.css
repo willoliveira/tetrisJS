@@ -1,16 +1,24 @@
 *{
     padding: 0;
     margin: 0;
-    overflow: hidden;
+    /*overflow: hidden;*/
+}
+
+#geral{
+    
+    position: relative;
+    
+    margin: auto;
+    width: 252px; 
+    height: 502px;
+    top:50px;
 }
 
 #areaJogo{
     background-color: black;
     border: solid 1px red;
-    position: relative;
     width: 250px; 
     height: 500px;
-    margin: auto;
 }
 
 #pecas{
@@ -52,4 +60,6 @@
     height: 23px;
     border: 1px solid #000;
     position: absolute;
+    -webkit-transition: all 2s linear;
+    transition: all 0.2s linear;
 }
