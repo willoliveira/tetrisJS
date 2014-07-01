@@ -110,8 +110,8 @@
      */
     tetrisJS.init = function(row, col) {
         //Seta as variaveis
-        linha = row;
-        coluna = col;  
+        linha = row  | linha;
+        coluna = col | coluna;  
         //Zera a matriz
         zerarMatriz();
         //Monta o grid do jogo
