@@ -1,65 +1,52 @@
 *{
     padding: 0;
     margin: 0;
-    overflow: hidden;
 }
 
 #geral{
-    
     position: relative;
-    
-    margin: auto;
-    width: 252px; 
-    height: 502px;
-    /*top:50px;*/
 }
 
 #areaJogo{
     background-color: black;
     border: solid 1px red;
-    width: 250px; 
-    height: 500px;
+    margin: auto;
 }
 
 #pecas{
-    width: 250px; 
-    height: 500px;
+   width: auto;
+   height: auto
 }
 
-#col div{
-    float: left;
-}
-#row, #col, #pecas, #pecas img{
+#col div, #row div, #row, #col, #pecas{
     position: absolute;
 }
 
 .grid-col{
     border-left: solid 1px gray;
-    width: 24px; 
-    height: 499px;
+/*    width: 24px; 
+    height: 499px;*/
 }
 
 .grid-col:last-child{
     border-right: solid 1px gray;
-    width: 23px; 
+    /*width: 23px;*/ 
 }
 
 .grid-row{
     border-top: solid 1px gray;
-    width: 250px; 
-    height: 24px;
+/*    width: 250px; 
+    height: 24px;*/
 }
 
 .grid-row:last-child{
     border-bottom: solid 1px gray;
-    height: 23px;
+    /*height: 23px;*/
 }
 
 .square{
-    width: 23px;
-    height: 23px;
     border: 1px solid #000;
     position: absolute;
     -webkit-transition: all 2s linear;
-    transition: all 0.2s linear;
+    transition: top 0.2s linear;
 }

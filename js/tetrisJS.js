@@ -6,31 +6,9 @@
     var tetrisJS = {
         tileSize : 0
     }, 
-        matriz = [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ],
+        linha = 0, 
+        coluna = 0,
+        matriz,
         pecas = [
         [
             [0, 1, 1],
@@ -69,22 +47,78 @@
         
         posX = 0, 
         posY = 0;
-        
     /*
      * Controi o grid do Tetris
-     * TODO: Fazer a função que constroi todo o grid do jogo
      */
-    function montarGrid() { }
-    
+    function montarGrid() {
+        //Pega o container onde vai as linhas e colunas
+        var areaJogo  = document.getElementById("areaJogo"),
+            containerRow = document.getElementById("row"),
+            containerCol = document.getElementById("col"),
+            elem;
+        //Limpa as colunas
+        containerRow.innerHTML = "";
+        containerCol.innerHTML = "";
+        //Linha
+        for(var r = 0; r < linha; r++ ) {
+            //Cria um elemento linha
+            elem = document.createElement("div");            
+            elem.className = "grid-row";
+            containerRow.appendChild(elem);
+            //Seta o tamanho da linha
+            elem.style.width    = (matriz[0].length * tetrisJS.tileSize) + "px";
+            elem.style.height   = (tetrisJS.tileSize - 1) + "px";
+            elem.style.top      = (tetrisJS.tileSize * r) + "px";
+            //Se for a ultima linha, o height é diferente
+            if(r == (linha - 1))
+                elem.style.height   = (tetrisJS.tileSize - 2) + "px";
+        }
+        //Coluna
+        for(var c = 0; c < coluna; c++) {
+            //Cria um elemento coluna
+            elem = document.createElement("div");            
+            elem.className = "grid-col";
+            containerCol.appendChild(elem);
+            //Seta o tamanho da coluna
+            elem.style.width  = (tetrisJS.tileSize - 1) + "px";
+            elem.style.height = ((matriz.length * tetrisJS.tileSize) - 1) + "px";
+            elem.style.left   = (tetrisJS.tileSize * c) + "px";
+            //Se for a ultima coluna, o width é diferente
+            if(c == (coluna - 1))
+                elem.style.width  =  (tetrisJS.tileSize - 2) + "px";
+        }
+        //Seta o tamanho do container
+        areaJogo.style.width  = (matriz[0].length * tetrisJS.tileSize) + "px";
+        areaJogo.style.height = (matriz.length * tetrisJS.tileSize) + "px";
+    }
+    /*
+     * Zera a matriz que vou usar
+     */
+    function zerarMatriz() {
+        matriz = [];
+        //Linha
+        for(var r = 0; r < linha; r++ ) {
+            //Linhas
+            matriz[r] = [];
+            for(var c = 0; c < coluna; c++) {
+                matriz[r][c] = 0;
+            }
+        }
+    }
     /**
      * Construtor
      */
-    tetrisJS.init = function() {
+    tetrisJS.init = function(row, col) {
+        //Seta as variaveis
+        linha = row;
+        coluna = col;  
+        //Zera a matriz
+        zerarMatriz();
         //Monta o grid do jogo
-        //montarGrid();
-        addPeca();       
+        montarGrid();
+        //Adiciona a primeira peça
+        addPeca();
     };
-    
     /*
      * KeyDown
      * @param {type} e
@@ -114,7 +148,6 @@
         //}
         keys[e.keyCode] = true;
     }
-    
     /*
      * KeyUp
      * @param {type} e
@@ -122,7 +155,6 @@
     function onKeyUp(e) {
         delete keys[e.keyCode];
     }
-    
     /*
      * Monta uma peça
      * @param {type} matrizPeca
@@ -132,23 +164,25 @@
         //Container
         var container = document.createElement('div'),
         //Sorteia uma cor | Ta na gambs ainda
-            cor = cores[parseInt((cores.length - 1) * Math.random())];;
+            cor = cores[parseInt((cores.length - 1) * Math.random())];
+        //Configura o container da peça
         container.style.width  = (matrizPeca[0].length * tetrisJS.tileSize) + "px";
         container.style.height = (matrizPeca.length * tetrisJS.tileSize) + "px";
         container.style.position = 'absolute';
         //Varre a matriz da peca
         for(var row = 0, lenRow = matrizPeca.length; row < lenRow; row++) {
             for(var col = 0, lenCol = matrizPeca[0].length; col < lenCol; col++) {
-                //
+                //Se tiver um quadrado na matriz
                 if(matrizPeca[row][col] == 1) {
                     //Quadrado
                     var quadrado = document.createElement("div");
                     container.appendChild(quadrado);
-                    //
+                    //Configura o quadrado
                     quadrado.className = "square";
-                    //quadrado.className = "square " + row + "_" + col;
                     quadrado.style.backgroundColor = cor;
-                    //
+                    //Seta a posição dos quadrados
+                    quadrado.style.width  = (tetrisJS.tileSize - 2) + "px";
+                    quadrado.style.height = (tetrisJS.tileSize - 2) + "px";
                     quadrado.style.top  = (row * tetrisJS.tileSize) + "px";
                     quadrado.style.left = (col * tetrisJS.tileSize) + "px";
                 }
@@ -207,7 +241,6 @@
         currentPeca.elem.style.width  = (currentPeca.matriz[0].length * tetrisJS.tileSize) + "px";
         currentPeca.elem.style.height = (currentPeca.matriz.length * tetrisJS.tileSize) + "px";  
     }
-    
     /**
      * TODO: Fazer a rotação direito, escolhendo o lado inclusive
      * @param {type} eMatriz
@@ -225,7 +258,6 @@
         }
         return m;
     }
-    
     /*
      * 
      * Adiciona uma peça na tela
@@ -242,17 +274,19 @@
         window.addEventListener("keydown", onKeyDown);
         window.addEventListener("keyup", onKeyUp);
         //Seta a posição inicia da peça
-        posX = 3, 
+        posX = Math.floor( matriz[0].length / 2 -  currentPeca.matriz.length / 2), 
         posY = -currentPeca.matriz.length;
         //Onde ele vai iniciar
         currentPeca.elem.style.top  = (posY * tetrisJS.tileSize) + "px";
         currentPeca.elem.style.left = (posX * tetrisJS.tileSize) + "px";
         //Enter frame
-//        idInterval = setInterval(function(){ 
-//            move(0, 1); 
-//        }, 450);
+        idInterval = setInterval(function(){ 
+            move(0, 1); 
+        }, 450);
     }
-    
+    /**
+     * 
+     */
     function removePeca () {
         //Pega a posicao atual do role
         var containerPecas = document.getElementById("pecas"),
@@ -274,6 +308,7 @@
         for(var row = posY, lenRow = posY + peca.length; row < lenRow; row++) {
             for(var col = posX, lenCol = posX + peca[0].length; col < lenCol; col++) {
                 if(peca[row - posY][col - posX] == 1) {
+                    //Faz um cache da peça
                     var elem = pecas[cont];
                     //Coloca a colisao que a peça ocupou na matriz
                     matriz[row][col] = 1;
@@ -291,7 +326,6 @@
             }
         }
         //Removo o container vazio da peça
-        //$(currentPeca.elem).remove();
         containerPecas.removeChild(currentPeca.elem);
         //Verifica se eu preenchi uma linha
         verifyPoint(posY);
@@ -303,7 +337,9 @@
         //Adiciona uma peca
         addPeca();
     }
-    
+    /**
+     * 
+     */
     function endGame() {
         //Eventos
         window.removeEventListener("keydown", onKeyDown);
@@ -312,8 +348,10 @@
         clearInterval(idInterval);
         //Remove todas as peças
         document.getElementById("pecas").innerHTML = "";
-        //
-        tetrisJS.init();
+        //Zera a matriz
+        zerarMatriz();
+        //Adiciona a primeira peça
+        addPeca();
     }
     /**
      * 
@@ -325,10 +363,9 @@
         //Varrendo a linha da matriz
         for(var row = linha, lenRow = matriz.length; row < lenRow; row++) {
             //Varrendo a coluna da matriz
-            for(var col = 0, lenCol = matriz[0].length; col < lenCol; col++) {
+            for(var col = 0, lenCol = matriz[0].length; col < lenCol; col++)
                 //Se houver um espaço em branco, volto pro for da linha
                 if(matriz[row][col] == 0) continue linha;
-            }
             //Se chegar aqui, não há espaços vazios na linha, então ela pode ser removida
             removeLinhaMatriz(row);
         }
@@ -348,7 +385,10 @@
         //Removo a linha da matriz
         matriz.splice(row, 1);
         //Adiciona uma linha no começo da matriz
-        matriz.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        matriz.unshift([]);
+        //Preenche a primeira linha novamente
+        for(var col = 0, lenCol = matriz[1].length; col < lenCol; col++)
+            matriz[0][col] = 0;
         //Pega as peças do container
         pecas = containerPeca.childNodes;
         //Varre as peças que estão nos stage, e confiram elas
@@ -406,9 +446,9 @@
      * Se houver um espaço em branco, verifico no espaço vazio tem colisão com o mapa, por exemplo
      * se estou indo para a direita (como no exemplo abaixo), e existe um espaço vazio, varro a 
      * coluna também, para verificar se naquele espaço vazio, vai ter colisão como o mapa
-     *                  _
-     * EX:    RIGHT    |X|X X
-     *                 |_|_|_|
+     *                _
+     * EX:   RIGHT   |X|X X
+     *               |_|_|_|
      * 
      * @param {type} x Ponto X na matriz que eu quero ir
      * @param {type} y Ponto Y na matriz que eu quero ir
@@ -488,7 +528,7 @@
 }());
 
 
-$(document).ready(function() {
-    tetrisJS.tileSize = 25;
-    tetrisJS.init();
-});
+window.onload = function() {
+    tetrisJS.tileSize = 20;
+    tetrisJS.init(20, 10);
+};
