@@ -3,7 +3,9 @@
     /**
      * TODO: Fazer randomizar as cores e nao trazer a peça duas vezes seguidas
      */
-    var tetrisJS = { }, 
+    var tetrisJS = {
+        tileSize : 0
+    }, 
         matriz = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -63,7 +65,10 @@
         currentPeca = { elem:"", matriz:"" },
         indicePeca,
         
-        idInterval;
+        idInterval,
+        
+        posX = 0, 
+        posY = 0;
         
     /*
      * Controi o grid do Tetris
@@ -128,8 +133,8 @@
         var container = document.createElement('div'),
         //Sorteia uma cor | Ta na gambs ainda
             cor = cores[parseInt((cores.length - 1) * Math.random())];;
-        container.style.width  = (matrizPeca[0].length * 25) + "px";
-        container.style.height = (matrizPeca.length * 25) + "px";
+        container.style.width  = (matrizPeca[0].length * tetrisJS.tileSize) + "px";
+        container.style.height = (matrizPeca.length * tetrisJS.tileSize) + "px";
         container.style.position = 'absolute';
         //Varre a matriz da peca
         for(var row = 0, lenRow = matrizPeca.length; row < lenRow; row++) {
@@ -144,8 +149,8 @@
                     //quadrado.className = "square " + row + "_" + col;
                     quadrado.style.backgroundColor = cor;
                     //
-                    quadrado.style.top  = (row * 25) + "px";
-                    quadrado.style.left = (col * 25) + "px";
+                    quadrado.style.top  = (row * tetrisJS.tileSize) + "px";
+                    quadrado.style.left = (col * tetrisJS.tileSize) + "px";
                 }
             }
         }
@@ -158,19 +163,22 @@
      */
     function girarPeca() {
         //Coordenada em que a peça esta
-        var X = parseInt(currentPeca.elem.style.left)/25,
-            Y = parseInt(currentPeca.elem.style.top)/25,
+        var X = posX,
+            Y = posY,
             m, cont = 0,
             pecas = currentPeca.elem.childNodes;
         //Rotaciona a matriz
         m = rotateMatriz(currentPeca.matriz);
-        //Reposiciona a peça, se houver colisão com a parede
+        //Reposiciona as coordenadas, se houver colisão com a parede
         if(Y + m.length > matriz.length)
             Y  = matriz.length - m.length;
         if(X + m[0].length > matriz[0].length)
             X = matriz[0].length - m[0].length;
-        //Verifica se no lugar que a peça irá ocupar existe colisão, se não, quebra a função
-        for(var r = Y, rLen = Y + m.length; r < rLen; r++) {
+        /*
+         * Verifica se no lugar que a peça irá ocupar existe colisão, se não, quebra a função
+         * Do um abs no Y, se ele tiver fora do stage, começo por outra coluna a varrer
+         */
+        for(var r = Math.abs(Y), rLen = Y + m.length; r < rLen; r++) {
             for(var c = X, cLen = X + m[0].length; c < cLen; c++) {
                 if(m[r - Y][c - X] == 1 && matriz[r][c] == m[r - Y][c - X])
                     return false;
@@ -181,23 +189,29 @@
             for(var c = 0, cLen = m[0].length; c < cLen; c++) {
                 if(m[r][c] == 1) {
                     //Seta a posição dele dentro do container
-                    pecas[cont].style.left = (c * 25) + "px";
-                    pecas[cont].style.top  = (r * 25) + "px"; 
+                    pecas[cont].style.left = (c * tetrisJS.tileSize) + "px";
+                    pecas[cont].style.top  = (r * tetrisJS.tileSize) + "px"; 
                     //Contador
                     cont++;
                 }
             }
         }
+        //Reajusta a posição
+        posX = X;
+        posY = Y;
         //Coloca a matriz alterada no objeto da peça atual
         currentPeca.matriz = m;
         //Reajusta o tamanho do container e a posição
-        currentPeca.elem.style.left = (X * 25) + "px";
-        currentPeca.elem.style.top  = (Y * 25) + "px";        
-        currentPeca.elem.style.width  = (currentPeca.matriz[0].length * 25) + "px";
-        currentPeca.elem.style.height = (currentPeca.matriz.length * 25) + "px";  
-        
+        currentPeca.elem.style.left = (X * tetrisJS.tileSize) + "px";
+        currentPeca.elem.style.top  = (Y * tetrisJS.tileSize) + "px";        
+        currentPeca.elem.style.width  = (currentPeca.matriz[0].length * tetrisJS.tileSize) + "px";
+        currentPeca.elem.style.height = (currentPeca.matriz.length * tetrisJS.tileSize) + "px";  
     }
     
+    /**
+     * TODO: Fazer a rotação direito, escolhendo o lado inclusive
+     * @param {type} eMatriz
+     */
     function rotateMatriz(eMatriz) {
         //A matriz que vou usar pra inverter
         var m = [];
@@ -227,9 +241,12 @@
         //Eventos
         window.addEventListener("keydown", onKeyDown);
         window.addEventListener("keyup", onKeyUp);
+        //Seta a posição inicia da peça
+        posX = 3, 
+        posY = -currentPeca.matriz.length;
         //Onde ele vai iniciar
-        currentPeca.elem.style.top = "-" + ((currentPeca.matriz.length) * 25) + "px";
-        currentPeca.elem.style.left = "75px";
+        currentPeca.elem.style.top  = (posY * tetrisJS.tileSize) + "px";
+        currentPeca.elem.style.left = (posX * tetrisJS.tileSize) + "px";
         //Enter frame
 //        idInterval = setInterval(function(){ 
 //            move(0, 1); 
@@ -238,13 +255,12 @@
     
     function removePeca () {
         //Pega a posicao atual do role
-        var X = parseInt(currentPeca.elem.style.left)/25,
-            Y = parseInt(currentPeca.elem.style.top)/25,
+        var containerPecas = document.getElementById("pecas"),
             peca,
             pecas,
             cont = 0;
         //Se a peça tiver ficado pra fora do container do jogo, GAME OVER
-        if(Y < 0) {
+        if(posY < 0) {
             console.log("GAME OVER!!!");
             endGame();
             return false;
@@ -252,28 +268,33 @@
         //Matriz da peça atual
         peca = currentPeca.matriz;
         //Childs do container da peça
-        pecas = $(currentPeca.elem).children();
+        pecas = currentPeca.elem.childNodes;
+        cont = pecas.length - 1;
         //Altera a matriz, com os espaços ocupados pela ultima peça
-        for(var row = Y, lenRow = Y + peca.length; row < lenRow; row++) {
-            for(var col = X, lenCol = X + peca[0].length; col < lenCol; col++) {
-                if(peca[row - Y][col - X] == 1) {
+        for(var row = posY, lenRow = posY + peca.length; row < lenRow; row++) {
+            for(var col = posX, lenCol = posX + peca[0].length; col < lenCol; col++) {
+                if(peca[row - posY][col - posX] == 1) {
+                    var elem = pecas[cont];
                     //Coloca a colisao que a peça ocupou na matriz
                     matriz[row][col] = 1;
                     //Remove ela do container e adiciona no seu pai
-                    $(pecas[cont]).remove();
-                    $("#pecas").append($(pecas[cont]));
+                    currentPeca.elem.removeChild(elem);
+                    containerPecas.appendChild(elem);
                     //Reposiciono a peça e troco seu Class CSS, que é sua identificação
-                    $(pecas[cont])
-                        .css({top :(row * 25) + "px", left : (col * 25) + "px"})
-                        .addClass(row + "_" + col);
-                    cont++;
+                    elem.style.top  = (row * tetrisJS.tileSize) + "px";
+                    elem.style.left = (col * tetrisJS.tileSize) + "px";
+                    //Coloca uma identificação no quadrado
+                    elem.setAttribute('id', row + "_" + col);
+                    //Contador do numero de peças
+                    cont--;
                 }
             }
         }
         //Removo o container vazio da peça
-        $(currentPeca.elem).remove();
+        //$(currentPeca.elem).remove();
+        containerPecas.removeChild(currentPeca.elem);
         //Verifica se eu preenchi uma linha
-        verifyPoint(Y);
+        verifyPoint(posY);
         //Eventos
         window.removeEventListener("keydown", onKeyDown);
         window.removeEventListener("keyup", onKeyUp);
@@ -282,6 +303,7 @@
         //Adiciona uma peca
         addPeca();
     }
+    
     function endGame() {
         //Eventos
         window.removeEventListener("keydown", onKeyDown);
@@ -289,7 +311,7 @@
         //Limpa o setInverval
         clearInterval(idInterval);
         //Remove todas as peças
-        $("#pecas").html("");
+        document.getElementById("pecas").innerHTML = "";
         //
         tetrisJS.init();
     }
@@ -311,31 +333,37 @@
             removeLinhaMatriz(row);
         }
     }
-    
     /**
      * 
      * @param {type} row
      */
     function removeLinhaMatriz(row) {
+        //Container de peças
+        var containerPeca = document.getElementById("pecas"),
+            pecas;
         //Varre a linha e remove os tiles
         for(var col = 0, lenCol = matriz[0].length; col < lenCol; col++)
             //Remove os tiles fisicos
-            $("." + row + "_" + col).remove();
+            containerPeca.removeChild(document.getElementById(row + "_" + col));
         //Removo a linha da matriz
         matriz.splice(row, 1);
         //Adiciona uma linha no começo da matriz
         matriz.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        //Pega as peças do container
+        pecas = containerPeca.childNodes;
         //Varre as peças que estão nos stage, e confiram elas
-        for(var cont = 0; cont < $("#pecas").children().length; cont++) {
+        for(var cont = 0; cont < pecas.length; cont++) {
             //Pega a coordenada pela posição de cada quadrado
-            var elem = $("#pecas").children()[cont],
-                colTop = parseInt(elem.style.left)/25,
-                rowTop = parseInt(elem.style.top)/25;
+            var elem    = pecas[cont],
+                colTop  = parseInt(elem.style.left)/tetrisJS.tileSize,
+                rowTop  = parseInt(elem.style.top)/tetrisJS.tileSize;
+            //Se a linha da peça for menor que a da linha removida, então eu preciso reposicionar essas peças
             if(rowTop < row) {
+                //Seto a novo id
+                elem.setAttribute("id", (rowTop + 1) + "_" + colTop );
                 //Reposiciono a peça e troco seu Class CSS, que é sua identificação
-                $(elem).css({top :((rowTop + 1) * 25) + "px", left : (colTop * 25) + "px"})
-                       .removeClass(rowTop + "_" + colTop)
-                       .addClass((rowTop + 1) + "_" + colTop);
+                elem.style.top  = ((rowTop + 1) * tetrisJS.tileSize) + "px";
+                elem.style.left = (colTop * tetrisJS.tileSize) + "px";
            }
         }
     }
@@ -348,17 +376,40 @@
         //Pega a posicao atual do role
         var left = parseInt(currentPeca.elem.style.left),
             top = parseInt(currentPeca.elem.style.top),
-            destX = (left/25) + x,
-            destY = (top/25) + y;        
-        if(checkCollision(destX, destY, [x, y]) ) {
+            destX = (left / tetrisJS.tileSize) + x,
+            destY = (top / tetrisJS.tileSize) + y;
+        //Verifica se posso me mover
+        if(checkCollision(destX, destY, [x, y])) {
+            //Seta a posição
+            posX = destX;
+            posY = destY;
             //Move a peça para a região desejada
-            currentPeca.elem.style.left = left + (x * 25) + "px";
-            currentPeca.elem.style.top = top + (y * 25) + "px";
+            currentPeca.elem.style.left = (posX * tetrisJS.tileSize) + "px";
+            currentPeca.elem.style.top  = (posY * tetrisJS.tileSize) + "px";
         }
     }
-    
     /**
      * Verifica se posso me mover
+     * 
+     * dir[0] => Movimentação em X => (-1 LEFT | 1 RIGHT)
+     *    Varro apena uma coluna, da direção que a peça está indo
+     *               _                    _
+     * EX:   LEFT   |X|_ _      RIGHT    |_|_ X
+     *              |X|_|_|              |_|_|X|
+     *          
+     * dir[1] => Movimentação em Y
+     *    Varro apenas uma linha, da direção que a peça está indo
+     *               _                _
+     * EX:   DOWN   |_|_ _     UP*   |X|X X 
+     *              |X|X|X|          |_|_|_| 
+     * 
+     * Se houver um espaço em branco, verifico no espaço vazio tem colisão com o mapa, por exemplo
+     * se estou indo para a direita (como no exemplo abaixo), e existe um espaço vazio, varro a 
+     * coluna também, para verificar se naquele espaço vazio, vai ter colisão como o mapa
+     *                  _
+     * EX:    RIGHT    |X|X X
+     *                 |_|_|_|
+     * 
      * @param {type} x Ponto X na matriz que eu quero ir
      * @param {type} y Ponto Y na matriz que eu quero ir
      * @param {type} dir Array com a direção que quero ir
@@ -378,33 +429,29 @@
             return false;
         }         
         //Movimentando no eixo X
-        if (dir[1] === 0) { // row++    
+        if (dir[1] === 0) {
+            //Coluna que vou varrer, dependendo da colisão
             col = dir[0] === -1 ? 0 : peca[0].length - 1;
             len = peca.length;
-            //TODO: Ver isso ainda, foda :/
-            if(y < 0){
-                col += Math.abs(y);
+            //Se a peça ainda estiver fora do stage, não varro a coluna inteira, pois, a que esta fora do stage não haverá colisão
+            if(y < 0) {
                 contador = Math.abs(y);
-                y = 0;
+                row += Math.abs(y);
             }
         } 
         //Movimentando no eixo Y
-        else { // col++
-
-            row = dir[1] === -1 ? 0 : peca.length - 1;
+        else {
+            //Linha que vou varrer, Sempre irá varrer a linha debaixo, pois no tetris a peça não sobe (pelo menos não nesse...)
+            row = peca.length - 1;
             len = peca[0].length;
-            //if(y < 0) row += Math.floor(y)
         }
-        //Varro a coluna ou a linha da direção que vou morrer a peça, comparando com a matriz de colisão
-        // dir[0] => Movimentação em X => (-1 LEFT | 1 RIGHT)
-        // dir[1] => Movimentação em Y
-        for (var contador = 0; contador < len; contador++, dir[0] === 0 ? col++ : row++) {
-            //Se for 0, verifico diferente a colisa, vejo no proximo ponto se existe colisao
+        // Varro a coluna ou a linha da direção que vou morrer a peça, comparando com a matriz de colisão 
+        for (contador; contador < len; contador++, dir[0] === 0 ? col++ : row++) {
+            //Se for 0, a maneira como verifico muda
             if( peca[row][col] === 0) {
-                //Varrendo aqui o role ...Nem sei como vou explicar isso aqui...
+                rowTop = row;
+                colTop = col;
                 if(dir[1] === 0) {
-                    //Pega por qual coluna vou começar a varrer
-                    colTop = dir[0] == -1 ? 0 : peca[0].length - 1;
                     //Varre a linha da peça, procurando por alguma colisão
                     for (var i = 0, lenTop = peca[0].length; i < lenTop;i++, dir[0] == -1 ? colTop++ : colTop--) {
                         //compara pra ver ser vai colidir
@@ -412,12 +459,13 @@
                             return false;
                     }
                 } else if(dir[0] === 0) {
-                    //Pega por qual linha vou começar a varrer
-                    rowTop = dir[1] == -1 ? 0 : peca.length - 1;
                     //Varre a coluna da peça, procurando por alguma colisão
                     for (var i = 0, lenTop = peca.length; i < lenTop;i++, dir[1] == -1 ? rowTop++ : rowTop--) {
-                        //compara pra ver ser vai colidir
-                        if(rowTop > 0 && matriz[rowTop + y][col + x] === 1 && peca[rowTop][col] === 1) {
+                        /**
+                         * Se rowTop mais a coordenada de Y for menor que ZERO, quer dzer que a peça esta ainda um pouco fora da tela
+                         * então, não podemos (nem precisamos), verificar mais
+                         */
+                        if(rowTop + y > -1 && matriz[rowTop + y][col + x] === 1 && peca[rowTop][col] === 1) {
                             //Colidiu com o chão
                             removePeca();
                             return false;
@@ -436,12 +484,11 @@
         }
         return true;
     }
-    
     window.tetrisJS = tetrisJS;
 }());
 
 
 $(document).ready(function() {
-        
+    tetrisJS.tileSize = 25;
     tetrisJS.init();
 });
