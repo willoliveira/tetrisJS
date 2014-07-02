@@ -1,6 +1,5 @@
 *{
-    padding: 0;
-    margin: 0;
+    padding: 0; margin: 0;
 }
 
 #geral{
@@ -8,9 +7,7 @@
 }
 
 #areaJogo{
-    background-color: black;
-    border: solid 1px red;
-    margin: auto;
+    background-color: black; border: solid 1px red;
 }
 
 #pecas{
@@ -24,29 +21,21 @@
 
 .grid-col{
     border-left: solid 1px gray;
-/*    width: 24px; 
-    height: 499px;*/
 }
 
 .grid-col:last-child{
     border-right: solid 1px gray;
-    /*width: 23px;*/ 
 }
 
 .grid-row{
     border-top: solid 1px gray;
-/*    width: 250px; 
-    height: 24px;*/
 }
 
 .grid-row:last-child{
     border-bottom: solid 1px gray;
-    /*height: 23px;*/
 }
 
 .square{
-    border: 1px solid #000;
-    position: absolute;
-    -webkit-transition: all 2s linear;
-    transition: top 0.2s linear;
+    border: 1px solid #000; position: absolute; 
+    /*transition: top 0.2s linear;*/
 }

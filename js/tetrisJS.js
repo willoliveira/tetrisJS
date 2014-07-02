@@ -47,6 +47,22 @@
         
         posX = 0, 
         posY = 0;
+    /**
+     * 
+     * @param {type} row
+     * @param {type} col
+     */
+    tetrisJS.init = function(row, col) {
+        //Seta as variaveis
+        linha = row  | linha;
+        coluna = col | coluna;  
+        //Zera a matriz
+        zerarMatriz();
+        //Monta o grid do jogo
+        montarGrid();
+        //Adiciona a primeira peça
+        addPeca();
+    };
     /*
      * Controi o grid do Tetris
      */
@@ -105,20 +121,6 @@
             }
         }
     }
-    /**
-     * Construtor
-     */
-    tetrisJS.init = function(row, col) {
-        //Seta as variaveis
-        linha = row  | linha;
-        coluna = col | coluna;  
-        //Zera a matriz
-        zerarMatriz();
-        //Monta o grid do jogo
-        montarGrid();
-        //Adiciona a primeira peça
-        addPeca();
-    };
     /*
      * KeyDown
      * @param {type} e
@@ -191,7 +193,6 @@
         //Retorna a peça
         return container;
     }
-    
     /**
      * Gira uma peça
      */
@@ -447,7 +448,7 @@
      * se estou indo para a direita (como no exemplo abaixo), e existe um espaço vazio, varro a 
      * coluna também, para verificar se naquele espaço vazio, vai ter colisão como o mapa
      *                _
-     * EX:   RIGHT   |X|X X
+     * EX:   RIGHT   |X|X X  <=
      *               |_|_|_|
      * 
      * @param {type} x Ponto X na matriz que eu quero ir
@@ -529,6 +530,6 @@
 
 
 window.onload = function() {
-    tetrisJS.tileSize = 20;
+    tetrisJS.tileSize = 25;
     tetrisJS.init(20, 10);
 };
