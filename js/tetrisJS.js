@@ -46,7 +46,7 @@
         idInterval,
         
         posX = 0, 
-        posY = 0;
+        posY = 0;        
     /**
      * 
      * @param {type} row

@@ -3,11 +3,11 @@
 }
 
 #geral{
-    position: relative;
+    position: relative; 
 }
 
 #areaJogo{
-    background-color: black; border: solid 1px red;
+    background-color: black; border: solid 1px red;margin: 0 auto;
 }
 
 #pecas{
