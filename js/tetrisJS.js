@@ -6,9 +6,6 @@
     var tetrisJS = {
         tileSize : 0
     }, 
-        linha = 0, 
-        coluna = 0,
-        matriz,
         pecas = [
         [
             [0, 1, 1],
@@ -38,9 +35,12 @@
             [1, 1, 1, 1]
         ]],
         cores = ['red', 'green', 'blue', 'yellow', 'orange', 'gray', 'white', 'pink', 'purple'],
-        keys = { }, 
+        linha = 0, 
+        coluna = 0,
+        matriz,
         //Peça atual
         currentPeca = { elem:"", matriz:"" },
+        proximasPecas = [],
         indicePeca,
         
         idInterval,
@@ -126,73 +126,26 @@
      * @param {type} e
      */
     function onKeyDown(e) {
-        //Testa se a tecla esta sendo pressionada
-        //if(!(e.keyCode in keys)){
-            switch (e.keyCode){
-                //LEFT
-                case 37:
-                    move(-1, 0);
-                    break;
-                //UP Mudar a posicao da peca
-                case 38:
-                    //move(0, -1);
-                    girarPeca();
-                    break;
-                //RIGHT
-                case 39:
-                    move(1, 0);
-                    break;
-                //DOWN
-                case 40:
-                    move(0, 1);
-                    break;
-            }
-        //}
-        keys[e.keyCode] = true;
-    }
-    /*
-     * KeyUp
-     * @param {type} e
-     */
-    function onKeyUp(e) {
-        delete keys[e.keyCode];
-    }
-    /*
-     * Monta uma peça
-     * @param {type} matrizPeca
-     * @returns {Element}
-     */
-    function montarPeca(matrizPeca) {        
-        //Container
-        var container = document.createElement('div'),
-        //Sorteia uma cor | Ta na gambs ainda
-            cor = cores[parseInt((cores.length - 1) * Math.random())];
-        //Configura o container da peça
-        container.style.width  = (matrizPeca[0].length * tetrisJS.tileSize) + "px";
-        container.style.height = (matrizPeca.length * tetrisJS.tileSize) + "px";
-        container.style.position = 'absolute';
-        //Varre a matriz da peca
-        for(var row = 0, lenRow = matrizPeca.length; row < lenRow; row++) {
-            for(var col = 0, lenCol = matrizPeca[0].length; col < lenCol; col++) {
-                //Se tiver um quadrado na matriz
-                if(matrizPeca[row][col] == 1) {
-                    //Quadrado
-                    var quadrado = document.createElement("div");
-                    container.appendChild(quadrado);
-                    //Configura o quadrado
-                    quadrado.className = "square";
-                    quadrado.style.backgroundColor = cor;
-                    //Seta a posição dos quadrados
-                    quadrado.style.width  = (tetrisJS.tileSize - 2) + "px";
-                    quadrado.style.height = (tetrisJS.tileSize - 2) + "px";
-                    quadrado.style.top  = (row * tetrisJS.tileSize) + "px";
-                    quadrado.style.left = (col * tetrisJS.tileSize) + "px";
-                }
-            }
+        switch (e.keyCode){
+            //LEFT
+            case 37:
+                move(-1, 0);
+                break;
+            //UP Mudar a posicao da peca
+            case 38:
+                //move(0, -1);
+                girarPeca();
+                break;
+            //RIGHT
+            case 39:
+                move(1, 0);
+                break;
+            //DOWN
+            case 40:
+                move(0, 1);
+                break;
         }
-        //Retorna a peça
-        return container;
-    }
+    }    
     /**
      * Gira uma peça
      */
@@ -260,30 +213,95 @@
         return m;
     }
     /*
+     * Monta uma peça
+     * @param {type} matrizPeca
+     * @returns {Element}
+     */
+    function montarPeca(matrizPeca) {        
+        //Container
+        var container = document.createElement('div'),
+        //Sorteia uma cor | Ta na gambs ainda
+            cor = cores[parseInt((cores.length - 1) * Math.random())];
+        //Configura o container da peça
+        container.style.width  = (matrizPeca[0].length * tetrisJS.tileSize) + "px";
+        container.style.height = (matrizPeca.length * tetrisJS.tileSize) + "px";
+        container.style.position = 'relative';
+        //Varre a matriz da peca
+        for(var row = 0, lenRow = matrizPeca.length; row < lenRow; row++) {
+            for(var col = 0, lenCol = matrizPeca[0].length; col < lenCol; col++) {
+                //Se tiver um quadrado na matriz
+                if(matrizPeca[row][col] == 1) {
+                    //Quadrado
+                    var quadrado = document.createElement("div");
+                    container.appendChild(quadrado);
+                    //Configura o quadrado
+                    quadrado.className = "square";
+                    quadrado.style.backgroundColor = cor;
+                    //Seta a posição dos quadrados
+                    quadrado.style.width  = (tetrisJS.tileSize - 2) + "px";
+                    quadrado.style.height = (tetrisJS.tileSize - 2) + "px";
+                    quadrado.style.top  = (row * tetrisJS.tileSize) + "px";
+                    quadrado.style.left = (col * tetrisJS.tileSize) + "px";
+                }
+            }
+        }
+        //Retorna a peça
+        return container;
+    }
+    /**
+     * 
+     */
+    function generateNext() {
+        var obj = {},
+            indicePeca,
+            contAtual = document.getElementById('atual'),
+            contNext  = document.getElementById('proximo');
+        //Limpa o container de peças atuais
+        contAtual.innerHTML = "";        
+        //Proximas peças que serão adicionadas
+        for(var cont = proximasPecas.length; cont < 5; cont++) {
+            
+            //
+            obj = { };
+            //Randomiza a peça que vai entrar
+            indicePeca = Math.floor(Math.random() * pecas.length);        
+            //Randomiza peças
+            obj.elem = montarPeca(pecas[indicePeca]).cloneNode(true);
+            obj.matriz = pecas[indicePeca];
+            //Adiciona no array
+            proximasPecas.push(obj);            
+            if(cont>0) contNext.appendChild(obj.elem.cloneNode(true));
+            //contNext.insertBefore(obj.elem.cloneNode(true), contNext.firstChild);
+        }
+        contAtual.appendChild(proximasPecas[0].elem.cloneNode(true));
+    }
+    /*
      * 
      * Adiciona uma peça na tela
      */
     function addPeca() {
-        //Randomiza a peça que vai entrar
-        indicePeca = Math.floor(Math.random() * pecas.length);        
+        //Atualiza o display
+        generateNext();    
         //Pega a peça atual
-        currentPeca.elem = montarPeca(pecas[indicePeca]);
-        currentPeca.matriz = pecas[indicePeca];
+        currentPeca = proximasPecas[0];
         //Adiciona no stage
         document.getElementById('pecas').appendChild(currentPeca.elem);
-        //Eventos
-        window.addEventListener("keydown", onKeyDown);
-        window.addEventListener("keyup", onKeyUp);
         //Seta a posição inicia da peça
         posX = Math.floor( matriz[0].length / 2 -  currentPeca.matriz.length / 2), 
         posY = -currentPeca.matriz.length;
         //Onde ele vai iniciar
         currentPeca.elem.style.top  = (posY * tetrisJS.tileSize) + "px";
         currentPeca.elem.style.left = (posX * tetrisJS.tileSize) + "px";
+        //Eventos
+        window.addEventListener("keydown", onKeyDown);
         //Enter frame
-        idInterval = setInterval(function(){ 
-            move(0, 1); 
-        }, 450);
+        idInterval = setInterval(onEnterFrame, 450);
+    }
+    /**
+     * 
+     */
+    function onEnterFrame() {
+        move(0, 1);
     }
     /**
      * 
@@ -300,6 +318,9 @@
             endGame();
             return false;
         }
+        var next = document.getElementById("proximo");
+        next.removeChild( next.children[0] );
+        proximasPecas.shift();
         //Matriz da peça atual
         peca = currentPeca.matriz;
         //Childs do container da peça
@@ -332,7 +353,6 @@
         verifyPoint(posY);
         //Eventos
         window.removeEventListener("keydown", onKeyDown);
-        window.removeEventListener("keyup", onKeyUp);
         //Limpa o setInverval
         clearInterval(idInterval);
         //Adiciona uma peca
@@ -344,7 +364,6 @@
     function endGame() {
         //Eventos
         window.removeEventListener("keydown", onKeyDown);
-        window.removeEventListener("keyup", onKeyUp);
         //Limpa o setInverval
         clearInterval(idInterval);
         //Remove todas as peças
@@ -525,6 +544,7 @@
         }
         return true;
     }
+    //
     window.tetrisJS = tetrisJS;
 }());
 

@@ -3,16 +3,27 @@
 }
 
 #geral{
-    position: relative; 
+    position: relative; width: 452px; height: 500px; margin: 0 auto;
 }
 
 #areaJogo{
-    background-color: black; border: solid 1px red;margin: 0 auto;
+    background-color: black; border: solid 1px red; float: left
+}
+
+.lateral{
+    width: 100px; height: 100%; float: left
 }
 
 #pecas{
-   width: auto;
-   height: auto
+   width: auto; height: auto
+}
+
+#atual, #proximo{
+    height: 70%;
+}
+
+#atual div, #proximo div{
+    margin-bottom: 5px
 }
 
 #col div, #row div, #row, #col, #pecas{
@@ -36,6 +47,5 @@
 }
 
 .square{
-    border: 1px solid #000; position: absolute; 
-    /*transition: top 0.2s linear;*/
+    border: 1px solid #000; position: absolute; /*transition: top 0.2s linear;*/
 }
