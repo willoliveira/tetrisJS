@@ -1,10 +1,10 @@
-(function(){
+(function(window){
     
     /**
      * TODO: Fazer randomizar as cores e nao trazer a peça duas vezes seguidas
      */
     var tetrisJS = {
-        tileSize : 0
+        tileSize : 25
     }, 
         pecas = [
         [
@@ -35,13 +35,12 @@
             [1, 1, 1, 1]
         ]],
         cores = ['red', 'green', 'blue', 'yellow', 'orange', 'gray', 'white', 'pink', 'purple'],
-        linha = 0, 
-        coluna = 0,
+        linha = 20, 
+        coluna = 10,
         matriz,
         //Peça atual
-        currentPeca = { elem:"", matriz:"" },
+        currentPeca = {elem: "", matriz: ""},
         proximasPecas = [],
-        indicePeca,
         
         idInterval,
         
@@ -62,6 +61,11 @@
         montarGrid();
         //Adiciona a primeira peça
         addPeca();
+		
+		//
+		window.addEventListener("keydown", onKeyDown);
+		//
+		idInterval = setInterval(onEnterFrame, 450);
     };
     /*
      * Controi o grid do Tetris
@@ -76,7 +80,7 @@
         containerRow.innerHTML = "";
         containerCol.innerHTML = "";
         //Linha
-        for(var r = 0; r < linha; r++ ) {
+        for (var r = 0; r < linha; r++ ) {
             //Cria um elemento linha
             elem = document.createElement("div");            
             elem.className = "grid-row";
@@ -90,7 +94,7 @@
                 elem.style.height   = (tetrisJS.tileSize - 2) + "px";
         }
         //Coluna
-        for(var c = 0; c < coluna; c++) {
+        for (var c = 0; c < coluna; c++) {
             //Cria um elemento coluna
             elem = document.createElement("div");            
             elem.className = "grid-col";
@@ -126,7 +130,7 @@
      * @param {type} e
      */
     function onKeyDown(e) {
-        switch (e.keyCode){
+        switch (e.keyCode) {
             //LEFT
             case 37:
                 move(-1, 0);
@@ -158,24 +162,22 @@
         //Rotaciona a matriz
         m = rotateMatriz(currentPeca.matriz);
         //Reposiciona as coordenadas, se houver colisão com a parede
-        if(Y + m.length > matriz.length)
+        if (Y + m.length > matriz.length)
             Y  = matriz.length - m.length;
-        if(X + m[0].length > matriz[0].length)
+        if (X + m[0].length > matriz[0].length)
             X = matriz[0].length - m[0].length;
-        /*
-         * Verifica se no lugar que a peça irá ocupar existe colisão, se não, quebra a função
-         * Do um abs no Y, se ele tiver fora do stage, começo por outra coluna a varrer
-         */
-        for(var r = Math.abs(Y), rLen = Y + m.length; r < rLen; r++) {
-            for(var c = X, cLen = X + m[0].length; c < cLen; c++) {
+        //Verifica se no lugar que a peça irá ocupar existe colisão, se não, quebra a função
+        //Do um abs no Y, se ele tiver fora do stage, começo por outra coluna a varrer
+        for (var r = Math.abs(Y), rLen = Y + m.length; r < rLen; r++) {
+            for (var c = X, cLen = X + m[0].length; c < cLen; c++) {
                 if(m[r - Y][c - X] == 1 && matriz[r][c] == m[r - Y][c - X])
                     return false;
             }
         }
         //Move as peças
-        for(var r = 0, rLen = m.length; r < rLen; r++) {
-            for(var c = 0, cLen = m[0].length; c < cLen; c++) {
-                if(m[r][c] == 1) {
+        for (var r = 0, rLen = m.length; r < rLen; r++) {
+            for (var c = 0, cLen = m[0].length; c < cLen; c++) {
+                if (m[r][c] == 1) {
                     //Seta a posição dele dentro do container
                     pecas[cont].style.left = (c * tetrisJS.tileSize) + "px";
                     pecas[cont].style.top  = (r * tetrisJS.tileSize) + "px"; 
@@ -252,26 +254,24 @@
      * 
      */
     function generateNext() {
-        var obj = {},
+        var obj,
             indicePeca,
             contAtual = document.getElementById('atual'),
             contNext  = document.getElementById('proximo');
         //Limpa o container de peças atuais
         contAtual.innerHTML = "";        
         //Proximas peças que serão adicionadas
-        for(var cont = proximasPecas.length; cont < 5; cont++) {
-            
-            //
-            obj = { };
+        for (var cont = proximasPecas.length; cont < 3; cont++) {
+            //Objeto da peça
+            obj = {};
             //Randomiza a peça que vai entrar
-            indicePeca = Math.floor(Math.random() * pecas.length);        
+            indicePeca = Math.floor(Math.random() * pecas.length);
             //Randomiza peças
             obj.elem = montarPeca(pecas[indicePeca]).cloneNode(true);
             obj.matriz = pecas[indicePeca];
             //Adiciona no array
             proximasPecas.push(obj);            
-            if(cont>0) contNext.appendChild(obj.elem.cloneNode(true));
-            //contNext.insertBefore(obj.elem.cloneNode(true), contNext.firstChild);
+            if (cont>0) contNext.appendChild(obj.elem.cloneNode(true));
         }
         contAtual.appendChild(proximasPecas[0].elem.cloneNode(true));
     }
@@ -281,7 +281,7 @@
      */
     function addPeca() {
         //Atualiza o display
-        generateNext();    
+        generateNext();
         //Pega a peça atual
         currentPeca = proximasPecas[0];
         //Adiciona no stage
@@ -292,10 +292,6 @@
         //Onde ele vai iniciar
         currentPeca.elem.style.top  = (posY * tetrisJS.tileSize) + "px";
         currentPeca.elem.style.left = (posX * tetrisJS.tileSize) + "px";
-        //Eventos
-        window.addEventListener("keydown", onKeyDown);
-        //Enter frame
-        idInterval = setInterval(onEnterFrame, 450);
     }
     /**
      * 
@@ -316,10 +312,11 @@
         if(posY < 0) {
             console.log("GAME OVER!!!");
             endGame();
-            return false;
+			return false;
         }
+		//Remove uma da lista de proximos
         var next = document.getElementById("proximo");
-        next.removeChild( next.children[0] );
+        next.removeChild(next.children[0]);
         proximasPecas.shift();
         //Matriz da peça atual
         peca = currentPeca.matriz;
@@ -327,8 +324,8 @@
         pecas = currentPeca.elem.childNodes;
         cont = pecas.length - 1;
         //Altera a matriz, com os espaços ocupados pela ultima peça
-        for(var row = posY, lenRow = posY + peca.length; row < lenRow; row++) {
-            for(var col = posX, lenCol = posX + peca[0].length; col < lenCol; col++) {
+        for (var row = posY, lenRow = posY + peca.length; row < lenRow; row++) {
+            for (var col = posX, lenCol = posX + peca[0].length; col < lenCol; col++) {
                 if(peca[row - posY][col - posX] == 1) {
                     //Faz um cache da peça
                     var elem = pecas[cont];
@@ -337,11 +334,11 @@
                     //Remove ela do container e adiciona no seu pai
                     currentPeca.elem.removeChild(elem);
                     containerPecas.appendChild(elem);
+					//Coloca uma identificação no quadrado
+                    elem.setAttribute('id', row + "_" + col);
                     //Reposiciono a peça e troco seu Class CSS, que é sua identificação
                     elem.style.top  = (row * tetrisJS.tileSize) + "px";
                     elem.style.left = (col * tetrisJS.tileSize) + "px";
-                    //Coloca uma identificação no quadrado
-                    elem.setAttribute('id', row + "_" + col);
                     //Contador do numero de peças
                     cont--;
                 }
@@ -351,47 +348,28 @@
         containerPecas.removeChild(currentPeca.elem);
         //Verifica se eu preenchi uma linha
         verifyPoint(posY);
-        //Eventos
-        window.removeEventListener("keydown", onKeyDown);
-        //Limpa o setInverval
-        clearInterval(idInterval);
         //Adiciona uma peca
         addPeca();
     }
     /**
-     * 
-     */
-    function endGame() {
-        //Eventos
-        window.removeEventListener("keydown", onKeyDown);
-        //Limpa o setInverval
-        clearInterval(idInterval);
-        //Remove todas as peças
-        document.getElementById("pecas").innerHTML = "";
-        //Zera a matriz
-        zerarMatriz();
-        //Adiciona a primeira peça
-        addPeca();
-    }
-    /**
-     * 
+     * Verifica se foi preenchida uma linha
      * @param {type} linha
      */
     function verifyPoint(linha) {
         //Se houver algum espaço vazio na linha, falo pra voltar no primeiro for
         linha:
         //Varrendo a linha da matriz
-        for(var row = linha, lenRow = matriz.length; row < lenRow; row++) {
+        for (var row = linha, lenRow = matriz.length; row < lenRow; row++) {
             //Varrendo a coluna da matriz
-            for(var col = 0, lenCol = matriz[0].length; col < lenCol; col++)
+            for (var col = 0, lenCol = matriz[0].length; col < lenCol; col++)
                 //Se houver um espaço em branco, volto pro for da linha
-                if(matriz[row][col] == 0) continue linha;
+                if (matriz[row][col] == 0) continue linha;
             //Se chegar aqui, não há espaços vazios na linha, então ela pode ser removida
             removeLinhaMatriz(row);
         }
     }
     /**
-     * 
+     * Remove uma linha preenchida
      * @param {type} row
      */
     function removeLinhaMatriz(row) {
@@ -439,7 +417,7 @@
             destX = (left / tetrisJS.tileSize) + x,
             destY = (top / tetrisJS.tileSize) + y;
         //Verifica se posso me mover
-        if(checkCollision(destX, destY, [x, y])) {
+        if (checkCollision(destX, destY, [x, y])) {
             //Seta a posição
             posX = destX;
             posY = destY;
@@ -481,11 +459,9 @@
             len, 
             peca = currentPeca.matriz;
         //Teste para não deixar ele sair das paredas do tetris
-        if ((x + peca[0].length > matriz[0].length) || x < 0 || y + peca.length > matriz.length ) {
-            //Se encostou no fundo, adiciona outra peça
-            if(dir[1] === 1) {
-                removePeca();
-            }
+        if ((x + peca[0].length > matriz[0].length) || x < 0 || y + peca.length > matriz.length) {
+            //Se a peça encostou nas parades do jogo, e a direção para baixo, entao certamente encostou no fundo
+            if (dir[1] === 1) removePeca();
             return false;
         }         
         //Movimentando no eixo X
@@ -494,7 +470,7 @@
             col = dir[0] === -1 ? 0 : peca[0].length - 1;
             len = peca.length;
             //Se a peça ainda estiver fora do stage, não varro a coluna inteira, pois, a que esta fora do stage não haverá colisão
-            if(y < 0) {
+            if (y < 0) {
                 contador = Math.abs(y);
                 row += Math.abs(y);
             }
@@ -508,48 +484,98 @@
         // Varro a coluna ou a linha da direção que vou morrer a peça, comparando com a matriz de colisão 
         for (contador; contador < len; contador++, dir[0] === 0 ? col++ : row++) {
             //Se for 0, a maneira como verifico muda
-            if( peca[row][col] === 0) {
+            if (peca[row][col] === 0) {
                 rowTop = row;
                 colTop = col;
-                if(dir[1] === 0) {
+				//Movendo na horizontal
+                if (dir[1] === 0) {
                     //Varre a linha da peça, procurando por alguma colisão
-                    for (var i = 0, lenTop = peca[0].length; i < lenTop;i++, dir[0] == -1 ? colTop++ : colTop--) {
+                    for (var i = 0, lenTop = peca[0].length; i < lenTop;i++, dir[0] == -1 ? colTop++ : colTop--)
                         //compara pra ver ser vai colidir
-                        if(matriz[row + y][colTop + x] === 1 && peca[row][colTop] === 1)
-                            return false;
-                    }
-                } else if(dir[0] === 0) {
+                        if (matriz[row + y][colTop + x] === 1 && peca[row][colTop] === 1) return false;
+                //Movendo na vertical
+				} else if (dir[0] === 0) {
                     //Varre a coluna da peça, procurando por alguma colisão
                     for (var i = 0, lenTop = peca.length; i < lenTop;i++, dir[1] == -1 ? rowTop++ : rowTop--) {
-                        /**
-                         * Se rowTop mais a coordenada de Y for menor que ZERO, quer dzer que a peça esta ainda um pouco fora da tela
-                         * então, não podemos (nem precisamos), verificar mais
-                         */
-                        if(rowTop + y > -1 && matriz[rowTop + y][col + x] === 1 && peca[rowTop][col] === 1) {
+                        //Se rowTop mais a coordenada de Y for menor que ZERO, quer dzer que a peça esta ainda um pouco fora da tela
+                        //então, não podemos (nem precisamos), verificar mais
+                        if (rowTop + y > -1 && matriz[rowTop + y][col + x] === 1 && peca[rowTop][col] === 1) {
                             //Colidiu com o chão
                             removePeca();
                             return false;
                         }
                     }
                 }
-                //Se não houver nenhuma colisão, continua o for
+                //Se não houver nenhuma colisão continua o for
                 continue;
             }
             //Verifica se é possivel andar, na posição que desejo ir
-            if(matriz[row + y][col + x] === 1) {
+            if (matriz[row + y][col + x] === 1) {
                 //Se encostou no fundo, adiciona outra peça
-                if(dir[1] === 1) removePeca();
+                if (dir[1] === 1) removePeca();
                 return false;
             }
         }
         return true;
     }
+	/**
+	 *
+	 */
+	function addPopup() {
+		//Baixa o template do popup
+		$.get("tmp/popup.html", function(data) {
+			//Adiciona o popup
+			$("#geral").append(data);
+			//
+			$(".textoPop .btSim").mousedown(resetaGame);
+			//
+			$(".textoPop .btNao").mousedown(function() {
+				console.log("Volta pra home: btNao");
+			});
+		});
+	}	
+	/**
+     * 
+     */
+    function endGame() {
+        //Eventos
+        window.removeEventListener("keydown", onKeyDown);
+        //Limpa o setInverval
+        clearInterval(idInterval);
+		//
+		addPopup();
+    }
+	/**
+     * 
+     */
+    function resetaGame() {
+		//
+		$(".textoPop .btSim").unbind("mousedown", resetaGame);
+		$(".textoPop .btNao").unbind("mousedown");
+		$(".popup").remove();;
+		//
+		proximasPecas = [];
+		//Remove todas as peças
+        document.getElementById("pecas").innerHTML = "";
+		document.getElementById("proximo").innerHTML = "";
+		document.getElementById("atual").innerHTML = "";
+        //Zera a matriz
+        zerarMatriz();
+        //Adiciona a primeira peça
+        addPeca();
+		//
+		window.addEventListener("keydown", onKeyDown);
+		idInterval = setInterval(onEnterFrame, 450);
+	}
     //
     window.tetrisJS = tetrisJS;
-}());
+}(window));
 
 
 window.onload = function() {
-    tetrisJS.tileSize = 25;
-    tetrisJS.init(20, 10);
+	//Inicia o game
+	tetrisJS.init();	
+	//Esse é o default
+    //tetrisJS.tileSize = 25;
+    //tetrisJS.init(20, 10);
 };
