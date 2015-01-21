@@ -537,7 +537,7 @@
 	/**
      * 
      */
-    function endGame() {
+    function endGame() { 
         //Eventos
         window.removeEventListener("keydown", onKeyDown);
         //Limpa o setInverval
@@ -549,7 +549,7 @@
      * 
      */
     function resetaGame() {
-		//
+		//Remove eventos
 		$(".textoPop .btSim").unbind("mousedown", resetaGame);
 		$(".textoPop .btNao").unbind("mousedown");
 		$(".popup").remove();;
@@ -563,8 +563,9 @@
         zerarMatriz();
         //Adiciona a primeira peça
         addPeca();
-		//
+		//Evento de teclado
 		window.addEventListener("keydown", onKeyDown);
+		//Enter frame
 		idInterval = setInterval(onEnterFrame, 450);
 	}
     //
